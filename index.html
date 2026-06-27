@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chiro Barber — Agenda</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f5f5f0;
+  min-height: 100vh;
+  color: #1a1a1a;
+}
+
+.app { max-width: 980px; margin: 0 auto; padding-bottom: 3rem; }
+
+/* HEADER */
+.header {
+  background: #111;
+  color: #fff;
+  padding: 1.6rem 1.25rem 1.3rem;
+  text-align: center;
+}
+.logo-wrap {
+  display: flex; align-items: center; justify-content: center; gap: 16px;
+  margin-bottom: 6px;
+}
+.logo-icon { font-size: 30px; color: #c9a84c; }
+.logo-title {
+  font-size: 28px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase; color: #fff;
+}
+.logo-subtitle {
+  font-size: 11px; color: #c9a84c; letter-spacing: 5px;
+  text-transform: uppercase;
+}
+.logo-deco { color: #c9a84c; opacity: 0.6; font-size: 13px; letter-spacing: 2px; margin-top: 4px; }
+
+/* TABS */
+.mode-bar {
+  background: #1a1a1a;
+  display: flex; justify-content: center;
+}
+.mode-btn {
+  padding: 12px 32px; font-size: 13px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: #777; background: none; border: none; cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.15s;
+}
+.mode-btn.active { color: #c9a84c; border-bottom-color: #c9a84c; }
+
+/* VIEWS */
+.view { display: none; padding: 1.25rem; }
+.view.active { display: block; }
+
+/* WEEK NAV */
+.week-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+  background: #fff;
+  border: 1px solid #e8e8e4;
+  border-radius: 10px;
+  padding: 10px 16px;
+}
+.week-nav .nav-btn {
+  background: none; border: 1px solid #ddd;
+  border-radius: 8px; padding: 6px 14px;
+  cursor: pointer; font-size: 16px; color: #333;
+  transition: background 0.1s;
+}
+.week-nav .nav-btn:hover { background: #f0f0eb; }
+.week-label { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+
+/* GRID */
+.grid-wrap { overflow-x: auto; margin-top: 0; }
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 64px repeat(7, 1fr);
+  gap: 3px;
+  min-width: 560px;
+}
+.grid-header {
+  background: #1a1a1a; color: #fff;
+  text-align: center; padding: 8px 4px;
+  font-size: 12px; font-weight: 600;
+  border-radius: 8px; line-height: 1.4;
+}
+.grid-header.time-col { background: transparent; }
+.time-label {
+  font-size: 12px; color: #888;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 8px; height: 58px;
+}
+.slot {
+  height: 58px; border-radius: 8px;
+  border: 1px solid transparent;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.12s;
+  font-size: 11px; text-align: center; padding: 4px 3px;
+  user-select: none;
+}
+.slot.available {
+  background: #e8f5dc; border-color: #7fc241; color: #3a6a10;
+}
+.slot.available:hover { background: #d2ecbe; transform: scale(1.02); }
+.slot.booked {
+  background: #deeeff; border-color: #6aaae8; color: #0b4a8a;
+}
+.slot.booked:hover { background: #cde4ff; }
+.slot.blocked {
+  background: #f0f0eb; border-color: #d5d5ce; color: #999;
+  cursor: default;
+}
+.slot.empty {
+  background: #f9f9f6; border-color: #ebebE6;
+  color: #ccc; cursor: default; opacity: 0.7;
+}
+.slot.admin-empty {
+  background: #f9f9f6; border-color: #ebebE6;
+  color: #bbb; cursor: pointer; opacity: 0.8;
+}
+.slot.admin-empty:hover { background: #f0f0eb; border-color: #c9a84c; color: #c9a84c; }
+.slot-name { font-weight: 600; font-size: 11px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center; }
+.slot-icon { font-size: 17px; }
+
+/* LEGEND */
+.legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-bottom: 1rem; padding: 10px 14px;
+  background: #fff; border: 1px solid #e8e8e4;
+  border-radius: 10px;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+.legend-dot { width: 14px; height: 14px; border-radius: 4px; flex-shrink: 0; }
+.dot-avail  { background: #e8f5dc; border: 1px solid #7fc241; }
+.dot-booked { background: #deeeff; border: 1px solid #6aaae8; }
+.dot-blocked { background: #f0f0eb; border: 1px solid #d5d5ce; }
+
+/* CLIENT FORM */
+.client-name-bar {
+  display: flex; gap: 8px; align-items: center;
+  background: #fff; border: 1px solid #e8e8e4;
+  border-radius: 10px; padding: 10px 14px; margin-bottom: 1rem;
+}
+.client-name-bar input {
+  flex: 1; padding: 8px 12px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+  background: #fafaf8; color: #1a1a1a;
+}
+.client-name-bar input:focus { outline: none; border-color: #c9a84c; }
+.name-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #111; color: #fff;
+  border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 500;
+}
+.instructions {
+  font-size: 13px; color: #666; margin-bottom: 1rem;
+  padding: 8px 12px; background: #fff;
+  border: 1px solid #e8e8e4; border-radius: 10px;
+}
+
+/* ADMIN */
+.admin-login-wrap {
+  max-width: 360px; margin: 2rem auto;
+  background: #fff; border: 1px solid #e8e8e4;
+  border-radius: 12px; padding: 1.75rem;
+}
+.admin-login-wrap h3 {
+  font-size: 16px; font-weight: 600; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 8px;
+}
+.admin-login-wrap input {
+  width: 100%; padding: 10px 12px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+  background: #fafaf8; color: #1a1a1a; margin-bottom: 10px;
+}
+.admin-login-wrap input:focus { outline: none; border-color: #c9a84c; }
+.admin-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.admin-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+
+/* BUTTONS */
+.btn {
+  padding: 9px 18px; border-radius: 8px; font-size: 13px;
+  cursor: pointer; border: 1px solid #ddd;
+  background: #fff; color: #1a1a1a;
+  font-weight: 500; transition: all 0.12s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: #f0f0eb; }
+.btn.gold { background: #c9a84c; color: #fff; border-color: #c9a84c; }
+.btn.gold:hover { background: #b8943d; }
+.btn.danger { background: #fff0f0; color: #a32d2d; border-color: #f09595; }
+.btn.danger:hover { background: #ffe0e0; }
+.btn.sm { padding: 6px 12px; font-size: 12px; }
+
+/* MODALS */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+  padding: 1rem;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 14px;
+  border: 1px solid #e0e0da; padding: 1.75rem;
+  width: 360px; max-width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 0.5rem; }
+.modal .modal-info { font-size: 13px; color: #666; margin-bottom: 1rem; }
+.modal input, .modal select {
+  width: 100%; padding: 10px 12px; font-size: 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+  background: #fafaf8; color: #1a1a1a; margin-bottom: 10px;
+}
+.modal input:focus, .modal select:focus { outline: none; border-color: #c9a84c; }
+.modal-btns { display: flex; gap: 8px; margin-top: 6px; }
+.modal-btns .btn { flex: 1; justify-content: center; }
+.modal-action-list { display: flex; flex-direction: column; gap: 8px; }
+.modal-action-list .btn { justify-content: flex-start; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+  background: #1a1a1a; color: #fff; padding: 11px 24px;
+  border-radius: 10px; font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity 0.25s; z-index: 200;
+  pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* EARNINGS */
+.earnings-wrap {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 1rem;
+}
+.earnings-card {
+  background: #111; border-radius: 12px;
+  padding: 1rem 1.2rem; color: #fff;
+}
+.earnings-card.total { background: #1a1a1a; border: 1px solid #c9a84c33; }
+.earnings-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
+  color: #c9a84c; margin-bottom: 6px; font-weight: 600;
+}
+.earnings-amount {
+  font-size: 26px; font-weight: 700; color: #fff; line-height: 1;
+}
+.earnings-sub {
+  font-size: 11px; color: #666; margin-top: 4px;
+}
+@media(max-width:500px){ .earnings-wrap { grid-template-columns: 1fr; } }
+
+/* LOADING */
+.loading {
+  text-align: center; padding: 3rem 1rem; color: #888;
+  font-size: 14px;
+}
+.spinner {
+  width: 32px; height: 32px; border: 3px solid #e0e0da;
+  border-top-color: #c9a84c; border-radius: 50%;
+  animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* STATUS BAR */
+.status-bar {
+  background: #fff8e8; border: 1px solid #f0d88a;
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 12px; color: #7a5c00; margin-bottom: 1rem;
+  display: flex; align-items: center; gap: 6px;
+}
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #c9a84c; animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+@media(max-width:600px){
+  .logo-title { font-size: 22px; }
+  .mode-btn { padding: 10px 18px; font-size: 12px; }
+  .view { padding: 0.75rem; }
+  .admin-actions { gap: 6px; }
+  .btn { padding: 8px 12px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo-wrap">
+      <i class="ti ti-cut logo-icon" aria-hidden="true"></i>
+      <span class="logo-title">Chiro Barber</span>
+      <i class="ti ti-cut logo-icon" aria-hidden="true"></i>
+    </div>
+    <div class="logo-subtitle">— Agenda de Cortes —</div>
+    <div class="logo-deco">✦ ✂ ✦</div>
+  </div>
+
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="switchMode('client')" id="tab-client">Agendar hora</button>
+    <button class="mode-btn" onclick="switchMode('admin')" id="tab-admin">Panel admin</button>
+  </div>
+
+  <!-- CLIENT VIEW -->
+  <div class="view active" id="view-client">
+    <div class="status-bar" id="sync-status">
+      <div class="status-dot"></div>
+      <span>Conectando con la agenda...</span>
+    </div>
+
+    <div class="client-name-bar" id="name-form-area">
+      <i class="ti ti-user" aria-hidden="true" style="color:#999;font-size:18px;"></i>
+      <input type="text" id="client-name-input" placeholder="Ingresa tu nombre para reservar" maxlength="40"
+        onkeydown="if(event.key==='Enter')setClientName()" />
+      <button class="btn gold" onclick="setClientName()">Confirmar</button>
+    </div>
+    <div id="client-name-display" style="display:none;margin-bottom:1rem;display:none;align-items:center;gap:8px;">
+      <span class="name-badge"><i class="ti ti-user" aria-hidden="true"></i> <span id="display-name"></span></span>
+      <button class="btn sm" onclick="changeName()">Cambiar</button>
+    </div>
+    <div class="instructions" id="client-instructions" style="display:none;">
+      <i class="ti ti-hand-click" aria-hidden="true"></i>
+      Haz clic en un bloque <strong style="color:#3a6a10;">verde</strong> para reservar tu hora.
+    </div>
+
+    <div class="week-nav">
+      <button class="nav-btn" onclick="changeWeek(-1)"><i class="ti ti-chevron-left"></i></button>
+      <span class="week-label" id="client-week-label"></span>
+      <button class="nav-btn" onclick="changeWeek(1)"><i class="ti ti-chevron-right"></i></button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot dot-avail"></div> Disponible</div>
+      <div class="legend-item"><div class="legend-dot dot-booked"></div> Reservado</div>
+      <div class="legend-item"><div class="legend-dot dot-blocked"></div> No disponible</div>
+    </div>
+    <div class="grid-wrap">
+      <div id="client-grid-loading" class="loading"><div class="spinner"></div>Cargando agenda...</div>
+      <div class="schedule-grid" id="client-grid" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN VIEW -->
+  <div class="view" id="view-admin">
+    <div id="admin-login-wrap">
+      <div class="admin-login-wrap">
+        <h3><i class="ti ti-lock" aria-hidden="true" style="color:#c9a84c;"></i> Acceso admin</h3>
+        <input type="password" id="admin-pass" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPass()" />
+        <button class="btn gold" onclick="checkPass()" style="width:100%;justify-content:center;">Entrar</button>
+      </div>
+    </div>
+    <div id="admin-panel" style="display:none;">
+      <div class="admin-bar">
+        <span style="font-size:13px;color:#666;display:flex;align-items:center;gap:6px;">
+          <i class="ti ti-shield-check" style="color:#c9a84c;" aria-hidden="true"></i> Admin activo
+        </span>
+        <button class="btn sm" onclick="adminLogout()"><i class="ti ti-logout" aria-hidden="true"></i> Salir</button>
+      </div>
+      <div class="admin-actions">
+        <button class="btn gold" onclick="openEnableWeek()"><i class="ti ti-calendar-plus" aria-hidden="true"></i> Habilitar semana</button>
+        <button class="btn" onclick="openBlockFromAdmin()"><i class="ti ti-ban" aria-hidden="true"></i> Bloquear hora</button>
+        <button class="btn" onclick="openAdminBook()"><i class="ti ti-user-plus" aria-hidden="true"></i> Agendar cliente</button>
+      </div>
+
+      <!-- GANANCIAS -->
+      <div class="earnings-wrap">
+        <div class="earnings-card">
+          <div class="earnings-label">✂ Ganancias esta semana</div>
+          <div class="earnings-amount" id="earn-week">$0</div>
+          <div class="earnings-sub" id="earn-week-sub">0 cortes agendados</div>
+        </div>
+        <div class="earnings-card total">
+          <div class="earnings-label">✦ Ganancias totales</div>
+          <div class="earnings-amount" id="earn-total">$0</div>
+          <div class="earnings-sub" id="earn-total-sub">0 cortes en total</div>
+        </div>
+      </div>
+      <div class="week-nav">
+        <button class="nav-btn" onclick="changeWeekAdmin(-1)"><i class="ti ti-chevron-left"></i></button>
+        <span class="week-label" id="admin-week-label"></span>
+        <button class="nav-btn" onclick="changeWeekAdmin(1)"><i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot dot-avail"></div> Disponible — clic para opciones</div>
+        <div class="legend-item"><div class="legend-dot dot-booked"></div> Reservado — clic para gestionar</div>
+        <div class="legend-item"><div class="legend-dot dot-blocked"></div> Bloqueado — clic para liberar</div>
+        <div class="legend-item" style="gap:6px;">
+          <div style="width:14px;height:14px;border-radius:4px;background:#f9f9f6;border:1px solid #ebebE6;"></div>
+          Vacío — clic para habilitar
+        </div>
+      </div>
+      <div class="grid-wrap">
+        <div id="admin-grid-loading" class="loading"><div class="spinner"></div>Cargando agenda...</div>
+        <div class="schedule-grid" id="admin-grid" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-book">
+  <div class="modal">
+    <h3 id="modal-book-title">Reservar hora</h3>
+    <p class="modal-info" id="modal-book-info"></p>
+    <input type="text" id="modal-client-name" placeholder="Nombre del cliente" maxlength="40"
+      onkeydown="if(event.key==='Enter')confirmBook()" />
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('modal-book')">Cancelar</button>
+      <button class="btn gold" onclick="confirmBook()"><i class="ti ti-check" aria-hidden="true"></i> Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-block">
+  <div class="modal">
+    <h3>Bloquear hora</h3>
+    <p class="modal-info" id="modal-block-info"></p>
+    <input type="text" id="modal-block-reason" placeholder="Motivo interno (ej: clases, otro trabajo)" maxlength="80"
+      onkeydown="if(event.key==='Enter')confirmBlock()" />
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('modal-block')">Cancelar</button>
+      <button class="btn danger" onclick="confirmBlock()"><i class="ti ti-ban" aria-hidden="true"></i> Bloquear</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-slot-action">
+  <div class="modal">
+    <h3 id="modal-action-title">Opciones</h3>
+    <p class="modal-info" id="modal-action-info"></p>
+    <div class="modal-action-list" id="modal-action-btns"></div>
+    <button class="btn" onclick="closeModal('modal-slot-action')" style="margin-top:12px;width:100%;justify-content:center;">Cerrar</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-enable-week">
+  <div class="modal">
+    <h3><i class="ti ti-calendar-plus" aria-hidden="true" style="color:#c9a84c;"></i> Habilitar semana</h3>
+    <p class="modal-info">Activa los bloques de 11:00 a 17:00 para los días que elijas.<br>Solo activa los días vacíos (no sobreescribe reservas existentes).</p>
+    <select id="modal-days-select" multiple style="height:160px;margin-bottom:10px;">
+      <option value="0" selected>Lunes</option>
+      <option value="1" selected>Martes</option>
+      <option value="2" selected>Miércoles</option>
+      <option value="3" selected>Jueves</option>
+      <option value="4" selected>Viernes</option>
+      <option value="5" selected>Sábado</option>
+      <option value="6" selected>Domingo</option>
+    </select>
+    <p style="font-size:11px;color:#999;">Mantén Ctrl/Cmd para seleccionar múltiples días.</p>
+    <div class="modal-btns" style="margin-top:12px;">
+      <button class="btn" onclick="closeModal('modal-enable-week')">Cancelar</button>
+      <button class="btn gold" onclick="confirmEnableWeek()"><i class="ti ti-check" aria-hidden="true"></i> Habilitar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-move">
+  <div class="modal">
+    <h3><i class="ti ti-arrows-move" aria-hidden="true" style="color:#c9a84c;"></i> Mover reserva</h3>
+    <p class="modal-info" id="modal-move-from"></p>
+    <select id="modal-move-to" style="margin-bottom:10px;"></select>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('modal-move')">Cancelar</button>
+      <button class="btn gold" onclick="confirmMove()"><i class="ti ti-check" aria-hidden="true"></i> Mover</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getDatabase, ref, set, remove, onValue, off } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+// ─── FIREBASE CONFIG (Realtime Database) ──────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCS3ltsrrsB6l5__ZKSNXO46n9L_sukJRI",
+  authDomain: "chiro-barber-e0e58.firebaseapp.com",
+  databaseURL: "https://chiro-barber-e0e58-default-rtdb.firebaseio.com",
+  projectId: "chiro-barber-e0e58",
+  storageBucket: "chiro-barber-e0e58.firebasestorage.app",
+  messagingSenderId: "194768158211",
+  appId: "1:194768158211:web:d6e3294d8205637583d836"
+};
+// ──────────────────────────────────────────────────────────────────────────
+
+const ADMIN_PASS = 'chiro312';
+const HOURS = [11,12,13,14,15,16,17];
+const HOUR_LABELS = ['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const DAYS_SHORT = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const DAYS_LONG  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+
+let db;
+let slots = {};
+let currentWeekOffset = 0;
+let adminWeekOffset = 0;
+let adminLoggedIn = false;
+let pendingSlot = null;
+let movingSlot = null;
+let clientName = '';
+let clientDbRef = null;
+let adminDbRef  = null;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+const app = initializeApp(firebaseConfig);
+db = getDatabase(app);
+setStatus('Agenda en línea — cambios en tiempo real', true);
+
+function setStatus(msg, online) {
+  const bar = document.getElementById('sync-status');
+  if (online) {
+    bar.style.background = '#edf7e8';
+    bar.style.borderColor = '#7fc241';
+    bar.style.color = '#2d5c10';
+    bar.querySelector('.status-dot').style.background = '#5aaa22';
+  }
+  bar.querySelector('span').textContent = msg;
+}
+
+// ─── DATE HELPERS ─────────────────────────────────────────────────────────
+function getMonday(offset) {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const mon = new Date(now);
+  mon.setDate(now.getDate() + diff + offset * 7);
+  mon.setHours(0,0,0,0);
+  return mon;
+}
+
+function slotId(dayIdx, hour, offset) {
+  const mon = getMonday(offset);
+  const d = new Date(mon);
+  d.setDate(mon.getDate() + dayIdx);
+  return `${d.getFullYear()}_${String(d.getMonth()+1).padStart(2,'0')}_${String(d.getDate()).padStart(2,'0')}_${hour}`;
+}
+
+function slotDate(dayIdx, offset) {
+  const mon = getMonday(offset);
+  const d = new Date(mon);
+  d.setDate(mon.getDate() + dayIdx);
+  return d;
+}
+
+function formatWeekLabel(offset) {
+  const mon = getMonday(offset);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+  const opts = { day: 'numeric', month: 'short' };
+  return `${mon.toLocaleDateString('es-CL', opts)} — ${sun.toLocaleDateString('es-CL', opts)}`;
+}
+
+function dayHeader(dayIdx, offset) {
+  const d = slotDate(dayIdx, offset);
+  return `${DAYS_SHORT[dayIdx]}<br><span style="font-size:10px;color:#aaa;">${d.getDate()}/${d.getMonth()+1}</span>`;
+}
+
+// ─── REALTIME DATABASE LISTENER ───────────────────────────────────────────
+function subscribeAll(onUpdate) {
+  const dbRef = ref(db, 'slots');
+  onValue(dbRef, (snap) => {
+    slots = snap.val() || {};
+    onUpdate();
+  }, (err) => {
+    console.error(err);
+    setStatus('Error de conexión', false);
+  });
+  return dbRef;
+}
+
+// ─── SLOT CRUD ────────────────────────────────────────────────────────────
+async function writeSlot(id, data) {
+  const slotRef = ref(db, 'slots/' + id);
+  if (data === null) await remove(slotRef);
+  else await set(slotRef, data);
+}
+
+function getSlot(dayIdx, hour, offset) {
+  return slots[slotId(dayIdx, hour, offset)] || null;
+}
+
+// ─── RENDER CLIENT GRID ────────────────────────────────────────────────────
+function renderClientGrid() {
+  document.getElementById('client-grid-loading').style.display = 'none';
+  const grid = document.getElementById('client-grid');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '64px repeat(7, 1fr)';
+  document.getElementById('client-week-label').textContent = formatWeekLabel(currentWeekOffset);
+
+  let html = `<div class="grid-header time-col"></div>`;
+  for(let d=0;d<7;d++) html += `<div class="grid-header">${dayHeader(d, currentWeekOffset)}</div>`;
+
+  HOURS.forEach((h,hi) => {
+    html += `<div class="time-label">${HOUR_LABELS[hi]}</div>`;
+    for(let d=0;d<7;d++){
+      const s = getSlot(d,h,currentWeekOffset);
+      if(!s){
+        html += `<div class="slot empty"><i class="ti ti-minus slot-icon"></i></div>`;
+      } else if(s.status==='available'){
+        html += `<div class="slot available" onclick="clientBook(${d},${h})">
+          <i class="ti ti-scissors slot-icon"></i>
+          <div class="slot-name">Disponible</div>
+        </div>`;
+      } else if(s.status==='booked'){
+        html += `<div class="slot booked">
+          <i class="ti ti-user slot-icon"></i>
+          <div class="slot-name">${esc(s.client)}</div>
+        </div>`;
+      } else {
+        html += `<div class="slot blocked">
+          <i class="ti ti-lock slot-icon"></i>
+          <div class="slot-name">No disponible</div>
+        </div>`;
+      }
+    }
+  });
+  grid.innerHTML = html;
+}
+
+const PRECIO_CORTE = 5000;
+
+function formatPesos(n) {
+  return '$' + n.toLocaleString('es-CL');
+}
+
+function updateEarnings() {
+  // Week earnings: only booked slots in the current admin week
+  let weekCount = 0;
+  for(let d=0;d<7;d++){
+    HOURS.forEach(h => {
+      const s = getSlot(d, h, adminWeekOffset);
+      if(s && s.status === 'booked') weekCount++;
+    });
+  }
+
+  // Total earnings: ALL booked slots across all stored data
+  let totalCount = 0;
+  Object.values(slots).forEach(s => {
+    if(s && s.status === 'booked') totalCount++;
+  });
+
+  document.getElementById('earn-week').textContent = formatPesos(weekCount * PRECIO_CORTE);
+  document.getElementById('earn-week-sub').textContent = `${weekCount} corte${weekCount!==1?'s':''} agendado${weekCount!==1?'s':''}`;
+  document.getElementById('earn-total').textContent = formatPesos(totalCount * PRECIO_CORTE);
+  document.getElementById('earn-total-sub').textContent = `${totalCount} corte${totalCount!==1?'s':''} en total`;
+}
+
+// ─── RENDER ADMIN GRID ─────────────────────────────────────────────────────
+function renderAdminGrid() {
+  document.getElementById('admin-grid-loading').style.display = 'none';
+  const grid = document.getElementById('admin-grid');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '64px repeat(7, 1fr)';
+  document.getElementById('admin-week-label').textContent = formatWeekLabel(adminWeekOffset);
+
+  let html = `<div class="grid-header time-col"></div>`;
+  for(let d=0;d<7;d++) html += `<div class="grid-header">${dayHeader(d, adminWeekOffset)}</div>`;
+
+  HOURS.forEach((h,hi) => {
+    html += `<div class="time-label">${HOUR_LABELS[hi]}</div>`;
+    for(let d=0;d<7;d++){
+      const s = getSlot(d,h,adminWeekOffset);
+      if(!s){
+        html += `<div class="slot admin-empty" onclick="adminEnable(${d},${h})" title="Clic para habilitar">
+          <i class="ti ti-plus slot-icon"></i>
+        </div>`;
+      } else if(s.status==='available'){
+        html += `<div class="slot available" onclick="adminClickAvailable(${d},${h})">
+          <i class="ti ti-check slot-icon"></i>
+          <div class="slot-name">Libre</div>
+        </div>`;
+      } else if(s.status==='booked'){
+        html += `<div class="slot booked" onclick="adminClickBooked(${d},${h})">
+          <i class="ti ti-user slot-icon"></i>
+          <div class="slot-name">${esc(s.client)}</div>
+        </div>`;
+      } else {
+        html += `<div class="slot blocked" onclick="adminClickBlocked(${d},${h})" title="Bloqueado: ${esc(s.reason||'')}">
+          <i class="ti ti-lock slot-icon"></i>
+          <div class="slot-name">Bloqueado</div>
+        </div>`;
+      }
+    }
+  });
+  grid.innerHTML = html;
+  updateEarnings();
+}
+
+// ─── CLIENT ACTIONS ────────────────────────────────────────────────────────
+window.setClientName = function() {
+  const v = document.getElementById('client-name-input').value.trim();
+  if(!v){ showToast('Por favor ingresa tu nombre'); return; }
+  clientName = v;
+  document.getElementById('name-form-area').style.display = 'none';
+  const disp = document.getElementById('client-name-display');
+  disp.style.display = 'flex';
+  document.getElementById('display-name').textContent = clientName;
+  document.getElementById('client-instructions').style.display = 'block';
+};
+
+window.changeName = function() {
+  document.getElementById('client-name-input').value = clientName;
+  document.getElementById('name-form-area').style.display = 'flex';
+  document.getElementById('client-name-display').style.display = 'none';
+  document.getElementById('client-instructions').style.display = 'none';
+  clientName = '';
+};
+
+window.clientBook = function(d, h) {
+  if(!clientName){ showToast('Primero ingresa tu nombre arriba'); return; }
+  const s = getSlot(d,h,currentWeekOffset);
+  if(!s||s.status!=='available') return;
+  const date = slotDate(d, currentWeekOffset);
+  document.getElementById('modal-book-title').textContent = 'Confirmar reserva';
+  document.getElementById('modal-book-info').textContent =
+    `${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[HOURS.indexOf(h)]} a ${h+1}:00 hrs`;
+  document.getElementById('modal-client-name').value = clientName;
+  document.getElementById('modal-client-name').readOnly = true;
+  pendingSlot = { d, h, offset: currentWeekOffset };
+  openModal('modal-book');
+};
+
+window.confirmBook = async function() {
+  const name = document.getElementById('modal-client-name').value.trim();
+  if(!name){ showToast('Ingresa un nombre'); return; }
+  if(!pendingSlot){ closeModal('modal-book'); return; }
+  const id = slotId(pendingSlot.d, pendingSlot.h, pendingSlot.offset);
+  await writeSlot(id, { status:'booked', client: name });
+  closeModal('modal-book');
+  showToast('¡Hora reservada! ✂');
+  pendingSlot = null;
+};
+
+window.changeWeek = function(dir) {
+  currentWeekOffset += dir;
+  renderClientGrid();
+};
+
+// ─── ADMIN ACTIONS ─────────────────────────────────────────────────────────
+window.checkPass = function() {
+  const v = document.getElementById('admin-pass').value;
+  if(v === ADMIN_PASS){
+    adminLoggedIn = true;
+    document.getElementById('admin-login-wrap').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    renderAdminGrid();
+  } else {
+    showToast('Contraseña incorrecta');
+  }
+};
+
+window.adminLogout = function() {
+  adminLoggedIn = false;
+
+  document.getElementById('admin-login-wrap').style.display = 'block';
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('admin-pass').value = '';
+};
+
+window.changeWeekAdmin = function(dir) {
+  adminWeekOffset += dir;
+  renderAdminGrid();
+};
+
+window.adminEnable = async function(d, h) {
+  const id = slotId(d, h, adminWeekOffset);
+  await writeSlot(id, { status:'available' });
+};
+
+window.adminClickAvailable = function(d, h) {
+  const date = slotDate(d, adminWeekOffset);
+  document.getElementById('modal-action-title').textContent = 'Bloque disponible';
+  document.getElementById('modal-action-info').textContent =
+    `${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[HOURS.indexOf(h)]}`;
+  document.getElementById('modal-action-btns').innerHTML = `
+    <button class="btn" onclick="adminBook(${d},${h})"><i class='ti ti-user-plus'></i> Agendar cliente</button>
+    <button class="btn danger" onclick="adminBlockFromGrid(${d},${h})"><i class='ti ti-ban'></i> Bloquear hora</button>
+    <button class="btn" onclick="adminDisable(${d},${h})"><i class='ti ti-eye-off'></i> Deshabilitar bloque</button>
+  `;
+  openModal('modal-slot-action');
+};
+
+window.adminClickBooked = function(d, h) {
+  const s = getSlot(d, h, adminWeekOffset);
+  const date = slotDate(d, adminWeekOffset);
+  document.getElementById('modal-action-title').textContent = 'Reserva activa';
+  document.getElementById('modal-action-info').innerHTML =
+    `<strong>${esc(s.client)}</strong> — ${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} ${HOUR_LABELS[HOURS.indexOf(h)]}`;
+  document.getElementById('modal-action-btns').innerHTML = `
+    <button class="btn" onclick="adminMoveBooking(${d},${h})"><i class='ti ti-arrows-move'></i> Mover a otro bloque</button>
+    <button class="btn danger" onclick="adminCancelBooking(${d},${h})"><i class='ti ti-x'></i> Cancelar reserva</button>
+  `;
+  openModal('modal-slot-action');
+};
+
+window.adminClickBlocked = function(d, h) {
+  const s = getSlot(d, h, adminWeekOffset);
+  const date = slotDate(d, adminWeekOffset);
+  document.getElementById('modal-action-title').textContent = 'Hora bloqueada';
+  document.getElementById('modal-action-info').textContent =
+    `${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[HOURS.indexOf(h)]}${s.reason ? ' — '+s.reason : ''}`;
+  document.getElementById('modal-action-btns').innerHTML = `
+    <button class="btn" onclick="adminFreeBlock(${d},${h})"><i class='ti ti-lock-open'></i> Liberar (dejar disponible)</button>
+    <button class="btn" onclick="adminDisable(${d},${h})"><i class='ti ti-eye-off'></i> Deshabilitar bloque</button>
+  `;
+  openModal('modal-slot-action');
+};
+
+window.adminBook = function(d, h) {
+  closeModal('modal-slot-action');
+  const date = slotDate(d, adminWeekOffset);
+  document.getElementById('modal-book-title').textContent = 'Agendar cliente';
+  document.getElementById('modal-book-info').textContent =
+    `${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[HOURS.indexOf(h)]}`;
+  document.getElementById('modal-client-name').value = '';
+  document.getElementById('modal-client-name').readOnly = false;
+  pendingSlot = { d, h, offset: adminWeekOffset };
+  openModal('modal-book');
+};
+
+window.adminBlockFromGrid = function(d, h) {
+  closeModal('modal-slot-action');
+  const date = slotDate(d, adminWeekOffset);
+  document.getElementById('modal-block-info').textContent =
+    `${DAYS_LONG[d]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[HOURS.indexOf(h)]}`;
+  document.getElementById('modal-block-reason').value = '';
+  pendingSlot = { d, h };
+  openModal('modal-block');
+};
+
+window.adminDisable = async function(d, h) {
+  closeModal('modal-slot-action');
+  const id = slotId(d, h, adminWeekOffset);
+  await writeSlot(id, null);
+};
+
+window.adminFreeBlock = async function(d, h) {
+  closeModal('modal-slot-action');
+  const id = slotId(d, h, adminWeekOffset);
+  await writeSlot(id, { status:'available' });
+};
+
+window.adminCancelBooking = async function(d, h) {
+  closeModal('modal-slot-action');
+  const id = slotId(d, h, adminWeekOffset);
+  await writeSlot(id, { status:'available' });
+  showToast('Reserva cancelada');
+};
+
+window.adminMoveBooking = function(d, h) {
+  closeModal('modal-slot-action');
+  const s = getSlot(d, h, adminWeekOffset);
+  movingSlot = { d, h, client: s.client };
+  document.getElementById('modal-move-from').innerHTML =
+    `Moviendo hora de <strong>${esc(s.client)}</strong>. Elige el nuevo bloque:`;
+  const sel = document.getElementById('modal-move-to');
+  sel.innerHTML = '';
+  for(let dd=0;dd<7;dd++){
+    HOURS.forEach((hh,hi) => {
+      if(dd===d && hh===h) return;
+      const ss = getSlot(dd, hh, adminWeekOffset);
+      if(ss && ss.status==='available'){
+        const date = slotDate(dd, adminWeekOffset);
+        const opt = document.createElement('option');
+        opt.value = `${dd}_${hh}`;
+        opt.textContent = `${DAYS_LONG[dd]} ${date.getDate()}/${date.getMonth()+1} — ${HOUR_LABELS[hi]}`;
+        sel.appendChild(opt);
+      }
+    });
+  }
+  if(!sel.options.length){ showToast('No hay bloques disponibles para mover'); movingSlot=null; return; }
+  openModal('modal-move');
+};
+
+window.confirmMove = async function() {
+  const val = document.getElementById('modal-move-to').value;
+  if(!val||!movingSlot) return;
+  const [dd,hh] = val.split('_').map(Number);
+  const fromId = slotId(movingSlot.d, movingSlot.h, adminWeekOffset);
+  const toId   = slotId(dd, hh, adminWeekOffset);
+  await writeSlot(fromId, { status:'available' });
+  await writeSlot(toId, { status:'booked', client: movingSlot.client });
+  movingSlot = null;
+  closeModal('modal-move');
+  showToast('Reserva movida ✓');
+};
+
+window.openBlockFromAdmin = function() {
+  document.getElementById('modal-block-info').textContent = 'Haz clic en un bloque disponible de la grilla para bloquearlo.';
+  document.getElementById('modal-block-reason').value = '';
+  pendingSlot = null;
+  openModal('modal-block');
+};
+
+window.confirmBlock = async function() {
+  if(!pendingSlot){ closeModal('modal-block'); showToast('Haz clic en un bloque de la grilla primero'); return; }
+  const reason = document.getElementById('modal-block-reason').value.trim();
+  const id = slotId(pendingSlot.d, pendingSlot.h, adminWeekOffset);
+  await writeSlot(id, { status:'blocked', reason });
+  closeModal('modal-block');
+  showToast('Hora bloqueada');
+  pendingSlot = null;
+};
+
+window.openAdminBook = function() {
+  document.getElementById('modal-book-title').textContent = 'Agendar cliente';
+  document.getElementById('modal-book-info').textContent = 'Haz clic en un bloque disponible de la grilla.';
+  document.getElementById('modal-client-name').value = '';
+  document.getElementById('modal-client-name').readOnly = false;
+  pendingSlot = null;
+  openModal('modal-book');
+};
+
+window.openEnableWeek = function() { openModal('modal-enable-week'); };
+
+window.confirmEnableWeek = async function() {
+  const sel = document.getElementById('modal-days-select');
+  const selected = Array.from(sel.selectedOptions).map(o => parseInt(o.value));
+  for(const d of selected){
+    for(const h of HOURS){
+      const id = slotId(d, h, adminWeekOffset);
+      if(!slots[id]) await writeSlot(id, { status:'available' });
+    }
+  }
+  closeModal('modal-enable-week');
+  showToast('¡Semana habilitada!');
+};
+
+// ─── UTILS ─────────────────────────────────────────────────────────────────
+window.switchMode = function(mode) {
+  document.getElementById('view-client').classList.toggle('active', mode==='client');
+  document.getElementById('view-admin').classList.toggle('active', mode==='admin');
+  document.getElementById('tab-client').classList.toggle('active', mode==='client');
+  document.getElementById('tab-admin').classList.toggle('active', mode==='admin');
+};
+
+window.openModal = function(id) { document.getElementById(id).classList.add('open'); };
+window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+};
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── START ─────────────────────────────────────────────────────────────────
+// Subscribe once to ALL slots — renders both grids on every change
+subscribeAll(() => {
+  renderClientGrid();
+  if(adminLoggedIn) renderAdminGrid();
+});
+</script>
+</body>
+</html>
