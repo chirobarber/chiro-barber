@@ -166,6 +166,12 @@ body {
 .btn.green { background: #e8f5dc; color: #2d6010; border-color: #7fc241; }
 .btn.green:hover { background: #d2ecbe; }
 .btn.sm { padding: 6px 12px; font-size: 12px; }
+.btn.whatsapp {
+  background: #25d366; color: #fff; border-color: #25d366; text-decoration: none;
+  width: 100%; justify-content: center; font-size: 15px; padding: 12px; font-weight: 600;
+}
+.btn.whatsapp:hover { background: #1ebe5a; }
+.btn.whatsapp i { font-size: 20px; }
 
 /* MODALS */
 .modal-overlay {
@@ -412,8 +418,11 @@ body {
       <br><br>
       <span style="font-size:13px;color:#888;">📍 Av. Los Boldos 56, Condominio Los Bosques</span>
     </div>
-    <button class="btn gold" onclick="closeModal('modal-reminder')" style="width:100%;justify-content:center;font-size:15px;padding:12px;">
-      ¡Entendido!
+    <a class="btn whatsapp" id="reminder-whatsapp" href="#" target="_blank" rel="noopener">
+      <i class="ti ti-brand-whatsapp"></i> Avisar a Chiro por WhatsApp
+    </a>
+    <button class="btn" onclick="closeModal('modal-reminder')" style="width:100%;justify-content:center;font-size:14px;padding:10px;margin-top:8px;">
+      Cerrar
     </button>
   </div>
 </div>
@@ -459,7 +468,7 @@ body {
 <div class="modal-overlay" id="modal-enable-week">
   <div class="modal">
     <h3><i class="ti ti-calendar-plus" style="color:#c9a84c;"></i> Habilitar semana</h3>
-    <p class="modal-info">Activa bloques de 11:00 a 17:00 para los días elegidos. No sobreescribe reservas existentes.</p>
+    <p class="modal-info">Activa bloques de 11:00 a 19:00 para los días elegidos. No sobreescribe reservas existentes.</p>
     <select id="modal-days-select" multiple style="height:160px;margin-bottom:10px;">
       <option value="0" selected>Lunes</option>
       <option value="1" selected>Martes</option>
@@ -509,8 +518,9 @@ const firebaseConfig = {
 
 const ADMIN_PASS = 'chiro312';
 const PRECIO = 5000;
-const HOURS = [11,12,13,14,15,16,17];
-const HLABELS = ['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const WHATSAPP = '56936982493';
+const HOURS = [11,12,13,14,15,16,17,18,19];
+const HLABELS = HOURS.map(h=>`${h}:00`);
 const DSHORT = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 const DLONG  = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
@@ -867,6 +877,9 @@ window.confirmBook = async function(){
   await writeSlot(id,{status:'booked',client:name});
   closeModal('modal-book');
   if(!pendingSlot.isAdmin){
+    const date=slotDate(pendingSlot.d,pendingSlot.offset);
+    const msg=`Hola Chiro! Soy ${name}, agendé hora para el ${DLONG[pendingSlot.d]} ${date.getDate()}/${date.getMonth()+1} a las ${pendingSlot.h}:00. ¿Me puedes pasar el Safecard para entrar al condominio?`;
+    document.getElementById('reminder-whatsapp').href=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
     document.getElementById('reminder-name').textContent=name;
     openModal('modal-reminder');
   } else {
