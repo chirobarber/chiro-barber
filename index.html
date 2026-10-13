@@ -325,6 +325,41 @@ body {
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #c9a84c; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
+/* PRECIO NUEVO */
+.new-price-tag {
+  display: inline-block; vertical-align: middle; font-size: 10px !important; font-weight: 700 !important;
+  color: #fff !important; background: #c9a84c; border-radius: 20px; padding: 2px 8px;
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.price-why { font-size: 12px; color: #8a7438; margin: -4px 0 10px; display: flex; align-items: center; gap: 6px; }
+.price-modal {
+  position: relative; overflow: hidden; text-align: center; color: #ece5d0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.25), transparent 65%), #0d0d0d;
+  border: 1px solid #c9a84c; box-shadow: 0 0 0 4px #0d0d0d, 0 0 0 5px rgba(201,168,76,0.4), 0 16px 48px rgba(0,0,0,0.5);
+}
+.price-ribbon {
+  position: absolute; top: 16px; right: -34px; transform: rotate(45deg);
+  background: #c9a84c; color: #0d0d0d; font-family: 'Oswald', sans-serif; font-size: 11px;
+  letter-spacing: 2px; text-transform: uppercase; padding: 4px 40px; font-weight: 500;
+}
+.price-icon { font-size: 44px; margin-bottom: 6px; display: inline-block; }
+.price-modal h3 {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 23px; font-weight: 900; margin-bottom: 12px;
+  background: linear-gradient(180deg, #f6e7b4, #c9a84c); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.price-compare { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 14px; }
+.price-old { font-size: 20px; color: #777; text-decoration: line-through; text-decoration-color: #c0392b; text-decoration-thickness: 2px; }
+.price-compare i { color: #c9a84c; font-size: 20px; }
+.price-new { font-family: 'Playfair Display', Georgia, serif; font-size: 38px; font-weight: 900; color: #f6e7b4; line-height: 1; }
+.price-text { font-size: 14px; line-height: 1.55; color: #cfc8b4; margin-bottom: 10px; }
+.price-text strong { color: #fff; }
+.price-perks { list-style: none; text-align: left; margin: 0 auto 14px; display: inline-flex; flex-direction: column; gap: 6px; font-size: 13px; color: #ece5d0; }
+.price-perks i { color: #c9a84c; margin-right: 6px; }
+.price-thanks { font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: #a99a6e; font-size: 14px; margin-bottom: 16px; }
+.price-btn { width: 100%; justify-content: center; font-size: 15px; padding: 12px; font-weight: 600; }
+.modal-overlay.open .price-modal { animation: popIn 0.5s cubic-bezier(.2,1.5,.4,1); }
+.modal-overlay.open .price-icon { animation: snip 0.8s ease-in-out 0.4s 2; }
+
 /* CELEBRACIÓN */
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 150; overflow: hidden; }
 .confetti span {
@@ -450,7 +485,8 @@ body {
     <!-- Pago -->
     <div class="payment-card" style="margin-top:1.2rem;">
       <h4><i class="ti ti-currency-dollar" style="color:#c9a84c;"></i> Valor del corte</h4>
-      <div class="payment-price">$5.000 <span>pesos — Efectivo o transferencia</span></div>
+      <div class="payment-price">$6.000 <span class="new-price-tag">Nuevo precio</span> <span>pesos — Efectivo o transferencia</span></div>
+      <div class="price-why"><i class="ti ti-sparkles"></i> Tu aporte va directo a máquinas nuevas para cortes más precisos.</div>
       <div class="payment-data">
         <strong>Nombre:</strong> José Tomas Mujica Lepori<br>
         <strong>RUT:</strong> 21.719.172-6<br>
@@ -537,6 +573,30 @@ body {
       <button class="btn" onclick="closeModal('modal-book')">Cancelar</button>
       <button class="btn gold" onclick="confirmBook()"><i class="ti ti-check"></i> Confirmar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL: Aviso nuevo precio (se muestra una vez por visitante) -->
+<div class="modal-overlay" id="modal-price">
+  <div class="modal price-modal">
+    <div class="price-ribbon">Novedad</div>
+    <div class="price-icon">💈</div>
+    <h3>¡Chiro Barber sube de nivel!</h3>
+    <div class="price-compare">
+      <span class="price-old">$5.000</span>
+      <i class="ti ti-arrow-right"></i>
+      <span class="price-new">$6.000</span>
+    </div>
+    <p class="price-text">
+      Desde ahora el corte vale <strong>$6.000</strong>. Ese aporte extra va <strong>directo a máquinas nuevas y mejores</strong>:
+    </p>
+    <ul class="price-perks">
+      <li><i class="ti ti-scissors"></i> Degradados más limpios y precisos</li>
+      <li><i class="ti ti-sparkles"></i> Mejores terminaciones y perfilado</li>
+      <li><i class="ti ti-clock"></i> Cortes más rápidos, mismo detalle</li>
+    </ul>
+    <p class="price-thanks">Gracias por confiar en Chiro 🙌</p>
+    <button class="btn gold price-btn" onclick="closePriceNotice()">¡Dale, quiero mi corte! ✂️</button>
   </div>
 </div>
 
@@ -650,7 +710,9 @@ const firebaseConfig = {
 };
 
 const ADMIN_PASS = 'chiro312';
-const PRECIO = 5000;
+const PRECIO = 6000;
+const PRECIO_ANTERIOR = 5000;          // reservas antiguas sin precio guardado se cuentan a este valor
+const AVISO_PRECIO_HASTA = '2026-11-30'; // después de esta fecha el aviso deja de aparecer
 const WHATSAPP = '56936382493';
 const HOURS = [11,12,13,14,15,16,17,18,19];
 const HLABELS = HOURS.map(h=>`${h}:00`);
@@ -823,23 +885,25 @@ function renderAdminGrid() {
 // ── EARNINGS ──────────────────────────────────────────────────────────────
 function fmtPesos(n){ return '$'+n.toLocaleString('es-CL'); }
 
+function slotPrice(s){ return s.price||PRECIO_ANTERIOR; }
+
 function updateEarnings(){
-  let weekCount=0, monthCount=0, totalCount=0;
+  let weekCount=0, monthCount=0, totalCount=0, weekSum=0, monthSum=0, totalSum=0;
   // Week
-  for(let d=0;d<7;d++) HOURS.forEach(h=>{ const s=getSlot(d,h,adminWeekOffset); if(s&&s.status==='booked') weekCount++; });
+  for(let d=0;d<7;d++) HOURS.forEach(h=>{ const s=getSlot(d,h,adminWeekOffset); if(s&&s.status==='booked'){ weekCount++; weekSum+=slotPrice(s); } });
   // Month & total
   Object.entries(slots).forEach(([id,s])=>{
     if(s&&s.status==='booked'){
-      totalCount++;
-      if(slotIsThisMonth(id)) monthCount++;
+      totalCount++; totalSum+=slotPrice(s);
+      if(slotIsThisMonth(id)){ monthCount++; monthSum+=slotPrice(s); }
     }
   });
   const ws=weekCount, ms=monthCount, ts=totalCount;
-  document.getElementById('earn-week').textContent=fmtPesos(ws*PRECIO);
+  document.getElementById('earn-week').textContent=fmtPesos(weekSum);
   document.getElementById('earn-week-sub').textContent=`${ws} corte${ws!==1?'s':''}`;
-  document.getElementById('earn-month').textContent=fmtPesos(ms*PRECIO);
+  document.getElementById('earn-month').textContent=fmtPesos(monthSum);
   document.getElementById('earn-month-sub').textContent=`${ms} corte${ms!==1?'s':''}`;
-  document.getElementById('earn-total').textContent=fmtPesos(ts*PRECIO);
+  document.getElementById('earn-total').textContent=fmtPesos(totalSum);
   document.getElementById('earn-total-sub').textContent=`${ts} corte${ts!==1?'s':''}`;
 }
 
@@ -882,7 +946,7 @@ window.confirmBook = async function(){
   const name=document.getElementById('modal-client-name').value.trim();
   if(!name||!pendingSlot){closeModal('modal-book');return;}
   const id=slotId(pendingSlot.d,pendingSlot.h,pendingSlot.offset);
-  await writeSlot(id,{status:'booked',client:name});
+  await writeSlot(id,{status:'booked',client:name,price:PRECIO});
   closeModal('modal-book');
   // Show reminder
   document.getElementById('reminder-name').textContent=name;
@@ -961,8 +1025,10 @@ window.adminClickBooked = function(d,h){
   const paidBtn = s.paid
     ? `<button class="btn" onclick="adminTogglePaid(${d},${h})"><i class='ti ti-x'></i> Marcar como no pagado</button>`
     : `<button class="btn green" onclick="adminTogglePaid(${d},${h})"><i class='ti ti-currency-dollar'></i> Marcar como pagado</button>`;
+  const otherPrice = slotPrice(s)===PRECIO ? PRECIO_ANTERIOR : PRECIO;
   document.getElementById('modal-action-btns').innerHTML=`
     ${paidBtn}
+    <button class="btn" onclick="adminSetPrice(${d},${h},${otherPrice})"><i class='ti ti-tag'></i> Cobrar ${fmtPesos(otherPrice)} (ahora ${fmtPesos(slotPrice(s))})</button>
     <button class="btn" onclick="adminMoveBooking(${d},${h})"><i class='ti ti-arrows-move'></i> Mover a otro bloque</button>
     <button class="btn danger" onclick="adminCancelBooking(${d},${h})"><i class='ti ti-x'></i> Cancelar reserva</button>
   `;
@@ -975,6 +1041,13 @@ window.adminTogglePaid = async function(d,h){
   await writeSlot(id,{...s, paid: !s.paid});
   closeModal('modal-slot-action');
   showToast(s.paid ? 'Marcado como no pagado' : '¡Pago registrado! ✓');
+};
+
+window.adminSetPrice = async function(d,h,price){
+  const s=getSlot(d,h,adminWeekOffset);
+  await writeSlot(slotId(d,h,adminWeekOffset),{...s, price});
+  closeModal('modal-slot-action');
+  showToast(`Precio actualizado a ${fmtPesos(price)} ✓`);
 };
 
 window.adminClickBlocked = function(d,h){
@@ -1007,7 +1080,7 @@ window.confirmBook = async function(){
   if(!name){showToast('Ingresa un nombre');return;}
   if(!pendingSlot) return;
   const id=slotId(pendingSlot.d,pendingSlot.h,pendingSlot.offset);
-  await writeSlot(id,{status:'booked',client:name});
+  await writeSlot(id,{status:'booked',client:name,price:PRECIO});
   closeModal('modal-book');
   if(!pendingSlot.isAdmin){
     const date=slotDate(pendingSlot.d,pendingSlot.offset);
@@ -1051,7 +1124,7 @@ window.adminCancelBooking = async function(d,h){
 window.adminMoveBooking = function(d,h){
   closeModal('modal-slot-action');
   const s=getSlot(d,h,adminWeekOffset);
-  movingSlot={d,h,client:s.client};
+  movingSlot={d,h,client:s.client,data:s};
   document.getElementById('modal-move-from').innerHTML=
     `Moviendo hora de <strong>${esc(s.client)}</strong>. Elige el nuevo bloque:`;
   const sel=document.getElementById('modal-move-to');
@@ -1076,7 +1149,7 @@ window.confirmMove = async function(){
   if(!val||!movingSlot) return;
   const [dd,hh]=val.split('_').map(Number);
   await writeSlot(slotId(movingSlot.d,movingSlot.h,adminWeekOffset),{status:'available'});
-  await writeSlot(slotId(dd,hh,adminWeekOffset),{status:'booked',client:movingSlot.client});
+  await writeSlot(slotId(dd,hh,adminWeekOffset),{...movingSlot.data});
   movingSlot=null;
   closeModal('modal-move');
   showToast('Reserva movida ✓');
@@ -1164,7 +1237,22 @@ window.celebrate = function(){
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+// ── AVISO DE PRECIO ───────────────────────────────────────────────────────
+const AVISO_KEY='aviso-precio-'+PRECIO;
+
+function showPriceNotice(){
+  if(new Date() > new Date(AVISO_PRECIO_HASTA+'T23:59:59')) return;
+  try { if(localStorage.getItem(AVISO_KEY)) return; } catch(e){}
+  setTimeout(()=>openModal('modal-price'),600);
+}
+
+window.closePriceNotice = function(){
+  try { localStorage.setItem(AVISO_KEY,'1'); } catch(e){}
+  closeModal('modal-price');
+};
+
 // ── START ─────────────────────────────────────────────────────────────────
+showPriceNotice();
 subscribeAll(()=>{
   renderClientGrid();
   if(adminLoggedIn) renderAdminGrid();
