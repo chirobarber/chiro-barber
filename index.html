@@ -157,8 +157,6 @@ body {
 .slot.available:hover { background: #d2ecbe; transform: scale(1.02); }
 .slot.booked { background: #deeeff; border-color: #6aaae8; color: #0b4a8a; }
 .slot.booked:hover { background: #cde4ff; }
-.slot.booked.paid { background: #e8f5dc; border-color: #7fc241; color: #1a4a08; }
-.slot.booked.paid:hover { background: #d2ecbe; }
 .slot.blocked { background: #f0f0eb; border-color: #d5d5ce; color: #999; cursor: default; }
 .slot.past { background: #f7f7f7; border-color: #e0e0da; color: #bbb; cursor: default; opacity: 0.65; }
 .slot.past.booked-past { background: #f0f0f8; border-color: #c0c8e0; color: #888; cursor: default; opacity: 0.75; }
@@ -167,7 +165,6 @@ body {
 .slot.admin-empty:hover { background: #f0f0eb; border-color: #c9a84c; color: #c9a84c; }
 .slot-name { font-weight: 600; font-size: 11px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; text-align: center; }
 .slot-icon { font-size: 17px; }
-.paid-badge { font-size: 9px; color: #3a6a10; font-weight: 700; letter-spacing: 0.5px; }
 
 /* LEGEND */
 .legend {
@@ -251,8 +248,6 @@ body {
 .btn.gold:hover { background: #b8943d; }
 .btn.danger { background: #fff0f0; color: #a32d2d; border-color: #f09595; }
 .btn.danger:hover { background: #ffe0e0; }
-.btn.green { background: #e8f5dc; color: #2d6010; border-color: #7fc241; }
-.btn.green:hover { background: #d2ecbe; }
 .btn.sm { padding: 6px 12px; font-size: 12px; }
 .btn.whatsapp {
   background: #25d366; color: #fff; border-color: #25d366; text-decoration: none;
@@ -302,8 +297,122 @@ body {
 
 /* EARNINGS */
 .earnings-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
-.earnings-card { background: #111; border-radius: 12px; padding: 1rem 1.2rem; color: #fff; }
-.earnings-card.alt { background: #1a1a1a; border: 1px solid #c9a84c33; }
+.earnings-card {
+  position: relative; background: #111; border-radius: 12px; padding: 1rem 1.2rem; color: #fff;
+  border: 1px solid transparent; font: inherit; text-align: left; width: 100%; cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.earnings-card.alt { background: #1a1a1a; border-color: #c9a84c33; }
+.earnings-card:hover { transform: translateY(-2px); border-color: #c9a84c; }
+.earnings-card:focus-visible { outline: 2px solid #c9a84c; outline-offset: 2px; }
+.earnings-card.selected { border-color: #c9a84c; box-shadow: 0 6px 18px rgba(201,168,76,0.25); }
+.earnings-card.selected::after {
+  content: ''; position: absolute; left: 50%; bottom: -7px; width: 12px; height: 12px;
+  background: inherit; border-right: 1px solid #c9a84c; border-bottom: 1px solid #c9a84c;
+  transform: translateX(-50%) rotate(45deg);
+}
+.earnings-hint {
+  position: absolute; top: 12px; right: 12px; font-size: 11px; color: #c9a84c; opacity: 0.75;
+  display: flex; align-items: center; gap: 4px; transition: opacity 0.15s;
+}
+.earnings-card:hover .earnings-hint, .earnings-card.selected .earnings-hint { opacity: 1; }
+
+/* PANEL DE TENDENCIAS */
+.stats-panel {
+  background: #fff; border: 1px solid #e8e8e4; border-top: 3px solid #c9a84c; border-radius: 12px;
+  padding: 1rem 1.1rem 0.8rem; margin-bottom: 1rem; animation: statsIn 0.25s ease-out;
+}
+@keyframes statsIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.stats-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.stats-title { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 6px; flex: 1; min-width: 160px; }
+.stats-title i { color: #c9a84c; font-size: 18px; }
+.seg { display: inline-flex; background: #f0f0eb; border-radius: 8px; padding: 3px; }
+.seg-btn {
+  border: none; background: none; padding: 6px 14px; font-size: 12px; font-weight: 600; color: #666;
+  border-radius: 6px; cursor: pointer; transition: background 0.12s, color 0.12s;
+}
+.seg-btn.active { background: #111; color: #c9a84c; }
+.stats-close { border: none; background: none; font-size: 18px; color: #999; cursor: pointer; padding: 4px; border-radius: 6px; }
+.stats-close:hover { background: #f0f0eb; color: #333; }
+
+.stats-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+.kpi { background: #fafaf8; border: 1px solid #eeeee8; border-radius: 10px; padding: 9px 11px; min-width: 0; }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: #888; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi-value { font-size: 18px; font-weight: 700; color: #1a1a1a; margin-top: 3px; }
+.kpi-sub { font-size: 11px; color: #888; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpi.main { background: #111; border-color: #111; }
+.kpi.main .kpi-label { color: #c9a84c; }
+.kpi.main .kpi-value { color: #fff; }
+.kpi.main .kpi-sub { color: #999; }
+.delta { display: inline-flex; align-items: center; gap: 2px; font-weight: 700; }
+.delta.up { color: #2d7a10; }
+.delta.down { color: #b03030; }
+.delta.flat { color: #888; }
+
+.chart { position: relative; padding-left: 46px; }
+.chart-plot { position: relative; height: 180px; display: flex; align-items: flex-end; gap: 4px; border-bottom: 1px solid #cfcfc8; }
+.grid-line { position: absolute; left: 0; right: 0; border-top: 1px solid #eeeee8; pointer-events: none; }
+.grid-line span { position: absolute; right: calc(100% + 6px); top: -7px; font-size: 10px; color: #999; white-space: nowrap; }
+.avg-line { position: absolute; left: 0; right: 0; border-top: 1.5px dashed #8a7438; pointer-events: none; z-index: 2; }
+.avg-line span {
+  position: absolute; left: 2px; top: -17px; font-size: 10px; font-weight: 600; color: #8a7438;
+  background: #fff; padding: 0 4px; border-radius: 4px;
+}
+.bar-col {
+  flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  position: relative; cursor: pointer; border-radius: 6px 6px 0 0; transition: background 0.12s; min-width: 0;
+}
+.bar-col:hover { background: rgba(201,168,76,0.08); }
+.bar-col.selected { background: rgba(201,168,76,0.14); }
+.bar-stack {
+  width: 64%; max-width: 38px; position: relative; border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #d4b45c, #a8842f); transition: height 0.35s ease-out;
+}
+.bar-col:hover .bar-stack { background: linear-gradient(180deg, #c9a84c, #957424); }
+.bar-col.selected .bar-stack { background: linear-gradient(180deg, #a8842f, #6e5218); }
+.bar-col.empty .bar-stack { background: none; }
+.bar-val {
+  position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+  font-size: 10px; font-weight: 700; color: #1a1a1a; white-space: nowrap;
+}
+.bar-best { position: absolute; bottom: calc(100% + 16px); left: 50%; transform: translateX(-50%); font-size: 12px; }
+.chart-x { display: flex; gap: 4px; margin-top: 5px; }
+.x-lbl { flex: 1; text-align: center; font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; min-width: 0; line-height: 1.3; }
+.x-lbl.now { color: #1a1a1a; font-weight: 700; }
+.x-lbl.sel { color: #8a6a1e; font-weight: 700; }
+.chart-tip {
+  position: absolute; z-index: 5; pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  background: #111; color: #fff; border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.5;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2); white-space: nowrap; transform: translateX(-50%);
+}
+.chart-tip.show { opacity: 1; }
+.chart-tip b { color: #c9a84c; }
+.chart-tip .tip-total { font-size: 15px; font-weight: 700; }
+.chart-tip .tip-row { color: #ccc; display: flex; align-items: center; gap: 6px; }
+.chart-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.chart-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #666; }
+.chart-legend span { display: flex; align-items: center; gap: 5px; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; }
+.sw-bar { background: linear-gradient(180deg, #d4b45c, #a8842f); }
+.sw-avg { height: 0; border-top: 2px dashed #8a7438; border-radius: 0; width: 16px; }
+.chart-help { font-size: 11px; color: #999; display: flex; align-items: center; gap: 4px; }
+
+.stats-insights { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.insight {
+  display: flex; gap: 9px; align-items: flex-start; font-size: 12px; color: #555; line-height: 1.45;
+  background: #fffaf0; border: 1px solid #f0e3bd; border-radius: 10px; padding: 9px 11px;
+}
+.insight .ins-ico { font-size: 18px; line-height: 1; }
+.insight strong { color: #1a1a1a; }
+.fund-bar { height: 6px; background: #f0e3bd; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+.fund-bar div { height: 100%; background: linear-gradient(90deg, #c9a84c, #8a6a1e); border-radius: 4px; }
+.stats-table { margin-top: 10px; font-size: 12px; }
+.stats-table summary { cursor: pointer; color: #8a7438; font-weight: 600; padding: 4px 0; }
+.stats-table table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.stats-table th, .stats-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid #f0f0eb; white-space: nowrap; }
+.stats-table th:first-child, .stats-table td:first-child { text-align: left; }
+.stats-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+.stats-table tr.sel td { background: #fffaf0; font-weight: 700; }
 .earnings-label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #c9a84c; margin-bottom: 6px; font-weight: 600; }
 .earnings-amount { font-size: 22px; font-weight: 700; color: #fff; line-height: 1; }
 .earnings-sub { font-size: 11px; color: #888; margin-top: 4px; }
@@ -400,9 +509,23 @@ body {
   .admin-actions { gap: 6px; }
   .btn { padding: 8px 12px; font-size: 12px; }
   .earnings-wrap { grid-template-columns: 1fr; }
+  .earnings-card.selected::after { display: none; }
+  .stats-panel { padding: 0.85rem 0.8rem 0.7rem; }
+  .stats-head { flex-wrap: nowrap; gap: 6px; }
+  .stats-title { min-width: 0; font-size: 14px; }
+  .seg-btn { padding: 6px 10px; }
+  .stats-kpis { grid-template-columns: 1fr 1fr; }
+  .stats-insights { grid-template-columns: 1fr; }
+  .chart { padding-left: 38px; }
+  .chart-plot { height: 160px; gap: 2px; }
+  .chart-x { gap: 2px; }
+  .x-lbl.alt { visibility: hidden; }
+  .bar-val { display: none; }
+  .bar-col.selected .bar-val { display: block; }
 }
-@media(max-width:900px){
+@media(min-width:601px) and (max-width:900px){
   .earnings-wrap { grid-template-columns: 1fr 1fr; }
+  .stats-insights { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -525,21 +648,55 @@ body {
 
       <!-- GANANCIAS -->
       <div class="earnings-wrap">
-        <div class="earnings-card">
+        <button class="earnings-card" id="card-week" onclick="toggleStats('week','card-week')" aria-expanded="false" aria-controls="stats-panel">
+          <span class="earnings-hint"><i class="ti ti-chart-bar"></i> Ver tendencia</span>
           <div class="earnings-label">✂ Esta semana</div>
           <div class="earnings-amount" id="earn-week">$0</div>
           <div class="earnings-sub" id="earn-week-sub">0 cortes</div>
-        </div>
-        <div class="earnings-card alt">
+        </button>
+        <button class="earnings-card alt" id="card-month" onclick="toggleStats('month','card-month')" aria-expanded="false" aria-controls="stats-panel">
+          <span class="earnings-hint"><i class="ti ti-chart-bar"></i> Ver tendencia</span>
           <div class="earnings-label">📅 Este mes</div>
           <div class="earnings-amount" id="earn-month">$0</div>
           <div class="earnings-sub" id="earn-month-sub">0 cortes</div>
-        </div>
-        <div class="earnings-card alt">
+        </button>
+        <button class="earnings-card alt" id="card-total" onclick="toggleStats('month','card-total')" aria-expanded="false" aria-controls="stats-panel">
+          <span class="earnings-hint"><i class="ti ti-chart-bar"></i> Ver historial</span>
           <div class="earnings-label">✦ Total histórico</div>
           <div class="earnings-amount" id="earn-total">$0</div>
           <div class="earnings-sub" id="earn-total-sub">0 cortes</div>
+        </button>
+      </div>
+
+      <!-- PANEL DE TENDENCIAS -->
+      <div class="stats-panel" id="stats-panel" hidden>
+        <div class="stats-head">
+          <div class="stats-title"><i class="ti ti-chart-bar"></i> <span id="stats-title">Ganancias por semana</span></div>
+          <div class="seg" role="tablist">
+            <button class="seg-btn" id="seg-week" onclick="setStatsMode('week')">Semanas</button>
+            <button class="seg-btn" id="seg-month" onclick="setStatsMode('month')">Meses</button>
+          </div>
+          <button class="stats-close" onclick="closeStats()" aria-label="Cerrar gráfico"><i class="ti ti-x"></i></button>
         </div>
+        <div class="stats-kpis" id="stats-kpis"></div>
+        <div class="chart" id="stats-chart">
+          <div class="chart-plot" id="chart-plot"></div>
+          <div class="chart-x" id="chart-x"></div>
+          <div class="chart-tip" id="chart-tip" role="status"></div>
+        </div>
+        <div class="chart-foot">
+          <div class="chart-legend">
+            <span><i class="sw sw-bar"></i> Ganancias</span>
+            <span><i class="sw sw-avg"></i> Promedio</span>
+            <span>🏆 Mejor período</span>
+          </div>
+          <span class="chart-help" id="chart-help"></span>
+        </div>
+        <div class="stats-insights" id="stats-insights"></div>
+        <details class="stats-table">
+          <summary>Ver detalle en tabla</summary>
+          <div id="stats-table"></div>
+        </details>
       </div>
 
       <div class="week-nav">
@@ -550,7 +707,6 @@ body {
       <div class="legend">
         <div class="legend-item"><div class="legend-dot dot-avail"></div> Disponible</div>
         <div class="legend-item"><div class="legend-dot dot-booked"></div> Reservado</div>
-        <div class="legend-item" style="gap:6px;"><div style="width:14px;height:14px;border-radius:4px;background:#e8f5dc;border:1px solid #7fc241;"></div> Reservado + pagado</div>
         <div class="legend-item"><div class="legend-dot dot-blocked"></div> Bloqueado</div>
         <div class="legend-item"><div class="legend-dot dot-past"></div> Pasado</div>
       </div>
@@ -864,13 +1020,10 @@ function renderAdminGrid() {
         if(past) html+=`<div class="slot past"><i class="ti ti-minus slot-icon"></i></div>`;
         else html+=`<div class="slot available" onclick="adminClickAvailable(${d},${h})"><i class="ti ti-check slot-icon"></i><div class="slot-name">Libre</div></div>`;
       } else if(s.status==='booked'){
-        const paidClass = s.paid ? 'paid' : '';
-        const paidBadge = s.paid ? '<div class="paid-badge">✓ PAGADO</div>' : '';
         const pastClass = past ? 'booked-past past' : '';
-        html+=`<div class="slot booked ${paidClass} ${pastClass}" onclick="adminClickBooked(${d},${h})">
+        html+=`<div class="slot booked ${pastClass}" onclick="adminClickBooked(${d},${h})">
           <i class="ti ti-user slot-icon"></i>
           <div class="slot-name">${esc(s.client)}</div>
-          ${paidBadge}
         </div>`;
       } else {
         html+=`<div class="slot blocked" onclick="adminClickBlocked(${d},${h})" title="${esc(s.reason||'')}">
@@ -905,7 +1058,245 @@ function updateEarnings(){
   document.getElementById('earn-month-sub').textContent=`${ms} corte${ms!==1?'s':''}`;
   document.getElementById('earn-total').textContent=fmtPesos(totalSum);
   document.getElementById('earn-total-sub').textContent=`${ts} corte${ts!==1?'s':''}`;
+  if(statsMode) renderStats();
 }
+
+// ── PANEL DE TENDENCIAS ───────────────────────────────────────────────────
+const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_LARGO = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const WEEK_MS = 7*24*3600*1000;
+let statsMode = null, statsCard = null, statsSelMonth = null;
+
+function idToDate(id){ const [y,m,d]=id.split('_').map(Number); return new Date(y,m-1,d); }
+function mondayOf(dt){ const m=new Date(dt); const day=m.getDay(); m.setDate(m.getDate()+(day===0?-6:1-day)); m.setHours(0,0,0,0); return m; }
+function weekOffsetOf(mon){ return Math.round((mon - getMonday(0))/WEEK_MS); }
+function monthKey(dt){ return dt.getFullYear()*12 + dt.getMonth(); }
+function shortPesos(n){ return n>=1000 ? '$'+(Math.round(n/100)/10).toLocaleString('es-CL')+'k' : '$'+n; }
+
+// Agrupa las reservas por semana o por mes
+function buildPeriods(mode){
+  const agg = {};
+  let minK = Infinity, maxK = -Infinity;
+  Object.entries(slots).forEach(([id,s])=>{
+    if(!s || s.status!=='booked') return;
+    const dt = idToDate(id);
+    const k = mode==='week' ? weekOffsetOf(mondayOf(dt)) : monthKey(dt);
+    const a = agg[k] || (agg[k] = {total:0, count:0});
+    a.total += slotPrice(s); a.count++;
+    minK = Math.min(minK,k); maxK = Math.max(maxK,k);
+  });
+  const nowK = mode==='week' ? 0 : monthKey(new Date());
+  // Semanas: últimas 12 (y próximas si ya tienen reservas). Meses: todo el historial.
+  let start = mode==='week' ? nowK-11 : Math.min(isFinite(minK)?minK:nowK, nowK-5);
+  let end = Math.max(nowK, isFinite(maxK) ? Math.min(maxK, nowK+(mode==='week'?4:2)) : nowK);
+  const out = [];
+  for(let k=start;k<=end;k++){
+    const a = agg[k] || {total:0, count:0};
+    let label, long;
+    if(mode==='week'){
+      const mon = getMonday(k), sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      label = `${mon.getDate()}/${mon.getMonth()+1}`;
+      long = `Semana ${mon.getDate()} ${MESES[mon.getMonth()].toLowerCase()} – ${sun.getDate()} ${MESES[sun.getMonth()].toLowerCase()}`;
+    } else {
+      const y = Math.floor(k/12), m = k%12;
+      label = MESES[m] + ((m===0 || k===start) ? ` ${String(y).slice(2)}` : '');
+      long = `${MESES_LARGO[m][0].toUpperCase()+MESES_LARGO[m].slice(1)} ${y}`;
+    }
+    out.push({k, label, long, isNow: k===nowK, ...a});
+  }
+  return out;
+}
+
+function niceStep(max){
+  for(const s of [5000,10000,20000,25000,50000,100000,200000,250000,500000]) if(max/s <= 4) return s;
+  return Math.ceil(max/4/100000)*100000;
+}
+
+function deltaHtml(cur, prev){
+  if(prev===0 && cur===0) return `<span class="delta flat">— sin cambios</span>`;
+  if(prev===0) return `<span class="delta up"><i class="ti ti-trending-up"></i> nuevo</span>`;
+  const pct = Math.round((cur-prev)/prev*100);
+  if(pct===0) return `<span class="delta flat"><i class="ti ti-equal"></i> igual</span>`;
+  const up = pct>0;
+  return `<span class="delta ${up?'up':'down'}"><i class="ti ti-arrow-${up?'up':'down'}-right"></i> ${up?'+':''}${pct}%</span>`;
+}
+
+function renderStats(){
+  const mode = statsMode;
+  const P = buildPeriods(mode);
+  const unit = mode==='week' ? 'semana' : 'mes';
+  const selK = mode==='week' ? adminWeekOffset : (statsSelMonth ?? monthKey(new Date()));
+  let si = P.findIndex(p=>p.k===selK);
+  if(si<0) si = P.findIndex(p=>p.isNow);
+  const sel = P[si], prev = P[si-1] || {total:0,count:0};
+
+  // Promedio: solo períodos ya transcurridos (hasta hoy) con al menos un corte
+  const past = P.filter(p=>p.k <= (mode==='week'?0:monthKey(new Date())) && p.count>0);
+  const avg = past.length ? Math.round(past.reduce((t,p)=>t+p.total,0)/past.length) : 0;
+  const best = P.reduce((b,p)=> p.total>(b?b.total:0) ? p : b, null);
+
+  document.getElementById('stats-title').textContent = mode==='week' ? 'Ganancias por semana' : 'Ganancias por mes';
+  document.getElementById('seg-week').classList.toggle('active', mode==='week');
+  document.getElementById('seg-month').classList.toggle('active', mode==='month');
+  document.getElementById('chart-help').innerHTML = mode==='week'
+    ? `<i class="ti ti-hand-click"></i> Toca una barra para ver esa semana en la agenda`
+    : `<i class="ti ti-hand-click"></i> Toca un mes para compararlo con el anterior`;
+
+  // KPIs
+  document.getElementById('stats-kpis').innerHTML = `
+    <div class="kpi main">
+      <div class="kpi-label">${sel.isNow ? (mode==='week'?'Esta semana':'Este mes') : sel.long}</div>
+      <div class="kpi-value">${fmtPesos(sel.total)}</div>
+      <div class="kpi-sub">${sel.count} corte${sel.count!==1?'s':''}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">vs ${unit} anterior</div>
+      <div class="kpi-value">${deltaHtml(sel.total, prev.total)}</div>
+      <div class="kpi-sub">${sel.total-prev.total>=0?'+':'−'}${fmtPesos(Math.abs(sel.total-prev.total))} (antes ${fmtPesos(prev.total)})</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Promedio por ${unit}</div>
+      <div class="kpi-value">${fmtPesos(avg)}</div>
+      <div class="kpi-sub">${past.length} ${mode==='week'?'semanas':'meses'} con cortes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">🏆 Mejor ${unit}</div>
+      <div class="kpi-value">${best?fmtPesos(best.total):'$0'}</div>
+      <div class="kpi-sub">${best?best.long:'—'}</div>
+    </div>`;
+
+  // Gráfico de barras
+  const max = Math.max(...P.map(p=>p.total), avg, 1);
+  const step = niceStep(max), top = Math.ceil(max/step)*step || step;
+  let html = '';
+  for(let v=step; v<=top; v+=step){
+    html += `<div class="grid-line" style="bottom:${v/top*100}%"><span>${shortPesos(v)}</span></div>`;
+  }
+  html += `<div class="grid-line" style="bottom:0;border:none"><span>$0</span></div>`;
+  if(avg>0) html += `<div class="avg-line" style="bottom:${avg/top*100}%"><span>Prom. ${shortPesos(avg)}</span></div>`;
+  P.forEach((p,i)=>{
+    const h = p.total/top*100;
+    const isBest = best && p.k===best.k && p.total>0;
+    html += `<div class="bar-col ${i===si?'selected':''} ${p.total?'':'empty'}" data-i="${i}">
+      <div class="bar-stack" style="height:${h}%">
+        ${p.total>0 ? `<span class="bar-val">${shortPesos(p.total)}</span>` : ''}
+        ${isBest ? `<span class="bar-best" title="Mejor ${unit}">🏆</span>` : ''}
+      </div>
+    </div>`;
+  });
+  const plot = document.getElementById('chart-plot');
+  plot.innerHTML = html;
+  document.getElementById('chart-x').innerHTML = P.map((p,i)=>
+    `<div class="x-lbl ${p.isNow?'now':''} ${i===si?'sel':''} ${P.length>8 && (P.length-1-i)%2 ? 'alt':''}">${p.label}</div>`
+  ).join('');
+  // Solo mostrar montos sobre barras clave cuando hay muchas columnas
+  if(P.length>8) plot.querySelectorAll('.bar-col').forEach((c,i)=>{
+    const p=P[i]; if(!(i===si || (best && p.k===best.k) || p.isNow)) c.querySelector('.bar-val')?.remove();
+  });
+
+  // Interacción: tooltip + selección
+  const tip = document.getElementById('chart-tip');
+  const chart = document.getElementById('stats-chart');
+  plot.querySelectorAll('.bar-col').forEach(col=>{
+    const p = P[+col.dataset.i];
+    const show = ()=>{
+      tip.innerHTML = `<div><b>${p.long}</b></div>
+        <div class="tip-total">${fmtPesos(p.total)}</div>
+        <div class="tip-row">✂ ${p.count} corte${p.count!==1?'s':''}</div>
+        ${avg>0 ? `<div class="tip-row">${p.total>=avg?'▲':'▼'} ${fmtPesos(Math.abs(p.total-avg))} ${p.total>=avg?'sobre':'bajo'} el promedio</div>` : ''}`;
+      const cr = chart.getBoundingClientRect(), br = col.getBoundingClientRect();
+      const tw = tip.offsetWidth || 160;
+      let x = br.left - cr.left + br.width/2;
+      x = Math.max(tw/2, Math.min(cr.width - tw/2, x));
+      tip.style.left = x+'px';
+      tip.style.top = '0px';
+      tip.classList.add('show');
+    };
+    col.addEventListener('mouseenter', show);
+    col.addEventListener('mouseleave', ()=>tip.classList.remove('show'));
+    col.addEventListener('click', ()=>{
+      if(mode==='week'){ adminWeekOffset = p.k; renderAdminGrid(); }
+      else { statsSelMonth = p.k; renderStats(); }
+      show();
+    });
+  });
+
+  // Ideas y datos curiosos
+  const n = Math.min(4, Math.floor(past.length/2));
+  const last4 = past.slice(-n), prev4 = past.slice(-2*n,-n);
+  const avgOf = a => a.length ? a.reduce((t,p)=>t+p.total,0)/a.length : 0;
+  let trend;
+  if(n>=2 && avgOf(prev4)>0){
+    const pct = Math.round((avgOf(last4)-avgOf(prev4))/avgOf(prev4)*100);
+    trend = `<span class="ins-ico">${pct>=0?'📈':'📉'}</span><div><strong>Tendencia:</strong> ${mode==='week'?'tus últimas':'tus últimos'} ${last4.length} ${mode==='week'?'semanas':'meses'} con cortes promedian <strong>${fmtPesos(Math.round(avgOf(last4)))}</strong>, un <strong>${Math.abs(pct)}% ${pct>=0?'más':'menos'}</strong> que ${mode==='week'?'las':'los'} ${prev4.length} anteriores.</div>`;
+  } else {
+    trend = `<span class="ins-ico">📈</span><div><strong>Tendencia:</strong> con un par de ${mode==='week'?'semanas':'meses'} más de datos te muestro si vas subiendo o bajando.</div>`;
+  }
+  const allBooked = Object.values(slots).filter(s=>s&&s.status==='booked');
+  // Día y hora más fuertes (según todas las reservas)
+  const byDay = [0,0,0,0,0,0,0], byHour = {};
+  Object.entries(slots).forEach(([id,s])=>{
+    if(!s || s.status!=='booked') return;
+    const dt = idToDate(id), h = Number(id.split('_')[3]);
+    byDay[(dt.getDay()+6)%7]++;
+    byHour[h] = (byHour[h]||0)+1;
+  });
+  const topDay = byDay.indexOf(Math.max(...byDay));
+  const topHour = Object.entries(byHour).sort((a,b)=>b[1]-a[1])[0];
+  const dayPct = allBooked.length ? Math.round(byDay[topDay]/allBooked.length*100) : 0;
+  // Fondo: cortes ya realizados al precio nuevo
+  const now = new Date();
+  const fundCuts = Object.entries(slots).filter(([id,s])=>{
+    if(!s || s.status!=='booked' || slotPrice(s)<=PRECIO_ANTERIOR) return false;
+    const dt = idToDate(id); dt.setHours(Number(id.split('_')[3])); return dt < now;
+  }).length;
+  const fund = fundCuts*(PRECIO-PRECIO_ANTERIOR);
+  document.getElementById('stats-insights').innerHTML = `
+    <div class="insight">${trend}</div>
+    <div class="insight"><span class="ins-ico">📅</span><div>${allBooked.length ? `<strong>Tu día más fuerte:</strong> los <strong>${DLONG[topDay].toLowerCase()}</strong> (${dayPct}% de tus cortes). La hora más pedida es a las <strong>${topHour[0]}:00</strong>.` : '<strong>Tu día más fuerte:</strong> aparecerá cuando tengas reservas.'}</div></div>
+    <div class="insight"><span class="ins-ico">🛠️</span><div style="flex:1"><strong>Fondo máquinas nuevas:</strong> llevas <strong>${fmtPesos(fund)}</strong> juntados con el alza (${fundCuts} corte${fundCuts!==1?'s':''} ya realizado${fundCuts!==1?'s':''} a ${fmtPesos(PRECIO)}).</div></div>`;
+
+  // Tabla (más reciente primero)
+  document.getElementById('stats-table').innerHTML = `<table>
+    <thead><tr><th>${mode==='week'?'Semana':'Mes'}</th><th>Cortes</th><th>Ganancias</th><th>vs anterior</th></tr></thead>
+    <tbody>${P.map((p,i)=>{
+      const pv = P[i-1];
+      const d = pv ? p.total-pv.total : 0;
+      return `<tr class="${p.k===sel.k?'sel':''}"><td>${p.long}</td><td>${p.count}</td><td>${fmtPesos(p.total)}</td><td>${pv ? (d>0?'+':d<0?'−':'')+fmtPesos(Math.abs(d)) : '—'}</td></tr>`;
+    }).reverse().join('')}</tbody>
+  </table>`;
+}
+
+window.toggleStats = function(mode, cardId){
+  if(statsMode && statsCard===cardId){ closeStats(); return; }
+  openStats(mode, cardId);
+};
+
+function openStats(mode, cardId){
+  statsCard = cardId;
+  statsMode = mode;
+  if(mode==='month') statsSelMonth = null;
+  ['card-week','card-month','card-total'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.toggle('selected', id===cardId);
+    el.setAttribute('aria-expanded', id===cardId);
+  });
+  document.getElementById('stats-panel').hidden = false;
+  renderStats();
+}
+
+window.setStatsMode = function(mode){
+  openStats(mode, mode==='week' ? 'card-week' : (statsCard==='card-total' ? 'card-total' : 'card-month'));
+};
+
+window.closeStats = function(){
+  statsMode = null; statsCard = null;
+  document.getElementById('stats-panel').hidden = true;
+  ['card-week','card-month','card-total'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('selected'); el.setAttribute('aria-expanded', false);
+  });
+};
 
 // ── CLIENT ACTIONS ────────────────────────────────────────────────────────
 window.setClientName = function(){
@@ -1021,26 +1412,14 @@ window.adminClickBooked = function(d,h){
   const date=slotDate(d,adminWeekOffset);
   document.getElementById('modal-action-title').textContent='Reserva activa';
   document.getElementById('modal-action-info').innerHTML=
-    `<strong>${esc(s.client)}</strong> — ${DLONG[d]} ${date.getDate()}/${date.getMonth()+1} ${HLABELS[HOURS.indexOf(h)]}${s.paid?' <span style="color:#3a6a10;font-weight:700;">✓ Pagado</span>':''}`;
-  const paidBtn = s.paid
-    ? `<button class="btn" onclick="adminTogglePaid(${d},${h})"><i class='ti ti-x'></i> Marcar como no pagado</button>`
-    : `<button class="btn green" onclick="adminTogglePaid(${d},${h})"><i class='ti ti-currency-dollar'></i> Marcar como pagado</button>`;
+    `<strong>${esc(s.client)}</strong> — ${DLONG[d]} ${date.getDate()}/${date.getMonth()+1} ${HLABELS[HOURS.indexOf(h)]} · ${fmtPesos(slotPrice(s))}`;
   const otherPrice = slotPrice(s)===PRECIO ? PRECIO_ANTERIOR : PRECIO;
   document.getElementById('modal-action-btns').innerHTML=`
-    ${paidBtn}
     <button class="btn" onclick="adminSetPrice(${d},${h},${otherPrice})"><i class='ti ti-tag'></i> Cobrar ${fmtPesos(otherPrice)} (ahora ${fmtPesos(slotPrice(s))})</button>
     <button class="btn" onclick="adminMoveBooking(${d},${h})"><i class='ti ti-arrows-move'></i> Mover a otro bloque</button>
     <button class="btn danger" onclick="adminCancelBooking(${d},${h})"><i class='ti ti-x'></i> Cancelar reserva</button>
   `;
   openModal('modal-slot-action');
-};
-
-window.adminTogglePaid = async function(d,h){
-  const s=getSlot(d,h,adminWeekOffset);
-  const id=slotId(d,h,adminWeekOffset);
-  await writeSlot(id,{...s, paid: !s.paid});
-  closeModal('modal-slot-action');
-  showToast(s.paid ? 'Marcado como no pagado' : '¡Pago registrado! ✓');
 };
 
 window.adminSetPrice = async function(d,h,price){
